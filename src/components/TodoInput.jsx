@@ -19,7 +19,7 @@ function TodoInput({ addTask }) {
                 onChange={(e) => setTask(e.target.value)}
             />
 
-            <Button className="ml-px " onClick={handleAdd}>Add</Button>
+            <Button onClick={handleAdd}>Add</Button>
         </div>
     );
 }
