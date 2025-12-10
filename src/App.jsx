@@ -1,46 +1,70 @@
-import { useState } from "react";
-import Header from "./components/Header";
-import TodoInput from "./components/TodoInput";
-import TodoList from "./components/TodoList";
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import TaskCard from "./components/TaskCard.jsx";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
-    const [todos, setTodos] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [newTask, setNewTask] = useState("");
 
-    const addTask = (task) => {
-        if (!task.trim()) return;
-        setTodos([...todos, { id: Date.now(), text: task, done: false }]);
-    };
+    useEffect(() => {
+        const savedTask = JSON.parse(localStorage.getItem("tasks"));
+        if (savedTask) {
+            setTasks(savedTask);
+        }
+    }, []);
 
-    const toggleTask = (id) => {
-        setTodos(
-            todos.map((t) =>
-                t.id === id ? { ...t, done: !t.done } : t
-            )
-        );
-    };
-
-    const deleteTask = (id) => {
-        setTodos(todos.filter((t) => t.id !== id));
+    const addTask = () => {
+        const newTaskObj = [newTask, ...tasks];
+        if (newTask.trim() === "") {
+            toast.error("Enter The Task !");
+            return;
+        }
+        setTasks(newTaskObj);
+        localStorage.setItem("tasks", JSON.stringify(newTaskObj));
+        setNewTask("");
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#4527A0] via-[#6A1B9A] to-[#12005E] flex items-center justify-center p-4">
-
-            <div className="todo-box fade-in max-w-xl w-full rounded-3xl shadow-2xl border border-white/20 p-10">
-
-                <Header />
-                <div className="divider"></div>
-
-                <TodoInput addTask={addTask} />
-                <div className="divider"></div>
-
-                <TodoList todos={todos} toggleTask={toggleTask} deleteTask={deleteTask} />
-
+        <div className="main">
+            <Toaster />
+            <div className="input-container">
+                <div className="task-container">
+                    <h1 className="app-heading">ToDo App - <span className="sub-heading">My Tasks</span></h1>
+                    <input
+                        className="input-task"
+                        type="text"
+                        placeholder="Enter the task"
+                        value={newTask}
+                        onChange={(e) => {
+                            const addTask = e.target.value;
+                            setNewTask(addTask);
+                            localStorage.setItem("tasks", JSON.stringify(tasks));
+                        }}
+                    />
+                    <button className="btn" onClick={addTask}>
+                        Add Task
+                    </button>
+                    <div className="task-card">
+                        {tasks.length === 0 ? (
+                            <p style={{ color: "gray", fontSize: "20px", textAlign: "center" }}>
+                                No tasks yet. Add one to get started!  {" "}
+                            </p>
+                        ) : null}
+                        {tasks.map((task, index) => {
+                            return (
+                                <TaskCard
+                                    key={index}
+                                    task={task}
+                                    tasks={tasks}
+                                    setTasks={setTasks}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </div>
     );
 }
-
 export default App;
-
-
